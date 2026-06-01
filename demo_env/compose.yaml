@@ -1,0 +1,10 @@
+services:
+  healthy_app:
+    build:
+      context: ./healthy_app
+      dockerfile: Dockerfile
+
+  broken_app:
+    build:
+      context: ./broken_app
+      dockerfile: Dockerfile
