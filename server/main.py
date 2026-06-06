@@ -3,13 +3,22 @@ import docker
 import json
     
 
-client = docker.from_env()
 mcp = FastMCP("My MCP Server")
+
+
+def get_docker_client():
+    """Returns the Docker client instance."""
+    try:
+        client = docker.from_env()
+    except RuntimeError as e:
+        print(f"Error initializing Docker client: {e}")
+    return client
 
 
 @mcp.tool()
 def list_containers() -> str:
     """Lists all running Docker containers as structured JSON."""
+    client = get_docker_client()
     containers = client.containers.list()
 
     if not containers:
