@@ -47,6 +47,11 @@ With the MCP server connected, ask Claude: *"Why did `broken_app` crash?"*
 
 No copy-pasting logs. The assistant found the root cause itself.
 
+## FastAPI web interface
+
+<img width="777" height="902" alt="image" src="https://github.com/user-attachments/assets/0ecec29a-f30b-4a58-a3f9-5cfdb073349e" />
+
+
 ## 🏗️ Architecture
 
 ```mermaid
