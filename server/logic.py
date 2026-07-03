@@ -1,4 +1,5 @@
 import docker
+import psutil
 
 
 def _get_docker_client():
@@ -37,3 +38,23 @@ def _get_container_logs(container_id: str, tail: int = 100) -> dict:
         "logs": logs,
     }
     return result
+
+
+def _system_health() -> dict:
+    """Returns current CPU, memory and disk usage of the host machine."""
+    memory = psutil.virtual_memory()
+    disk = psutil.disk_usage("/")
+
+    return {
+        "cpu_percent": psutil.cpu_percent(interval=None),
+        "memory": {
+            "percent": memory.percent,
+            "total_mb": round(memory.total / (1024 ** 2)),
+            "available_mb": round(memory.available / (1024 ** 2)),
+        },
+        "disk": {
+            "percent": disk.percent,
+            "total_gb": round(disk.total / (1024 ** 3), 1),
+            "free_gb": round(disk.free / (1024 ** 3), 1),
+        },
+    }
