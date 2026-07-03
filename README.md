@@ -75,7 +75,7 @@ translation.** Adding a new interface (CLI, TUI, gRPC…) never touches the core
 |---|---|---|
 | List running containers | `list_containers` | `GET /containers` |
 | Fetch last N log lines (running **or** exited) | `get_container_logs` | `GET /containers/{id}/logs?tail=100` |
-| Host health — CPU / RAM / disk | `system_health` | `GET /system/health` |
+| Host health — CPU / RAM / disk | `get_system_health` | `GET /system_health` |
 | Landing page with live stats | — | `GET /` |
 | Interactive API docs (OpenAPI) | — | `GET /docs`, `GET /redoc` |
 
@@ -143,7 +143,7 @@ $ curl -s localhost:8000/containers | jq
   }
 ]
 
-$ curl -s "localhost:8000/system/health" | jq
+$ curl -s "localhost:8000/system_health" | jq
 {
   "cpu_percent": 4.2,
   "memory": { "percent": 12.1, "total_mb": 15850, "available_mb": 13929 },
@@ -184,7 +184,13 @@ python -m pytest --cov=server
   UTF-8 log decoding, and error path is asserted.
 - Docker SDK and `psutil` are fully mocked (`pytest-mock`) — the suite runs without a Docker daemon.
 - Static typing checked with **MyPy** (incl. `types-docker`, `types-psutil` stubs).
-a container)
+
+## 🗺️ Roadmap
+
+- [ ] `inspect_docker_network` — let the AI see how containers are wired together ("why can't app reach db?")
+- [ ] `all=True` option to also list stopped containers
+- [ ] Dockerfile for the server itself (run the analyser as a container)
+- [ ] SSE transport for remote MCP clients
 
 ## 📄 License
 

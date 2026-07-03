@@ -101,7 +101,8 @@
 
   <div class="stats">
     <div class="stat"><b id="count">–</b><span>running containers</span></div>
-    <div class="stat"><b>2</b><span>interfaces (MCP + REST)</span></div>
+    <div class="stat"><b id="cpu">–</b><span>host cpu</span></div>
+    <div class="stat"><b id="mem">–</b><span>host memory</span></div>
     <div class="stat"><b id="latency">–</b><span>api latency</span></div>
   </div>
 
@@ -114,6 +115,10 @@
     <a class="card" href="/docs#/default/get_container_logs_containers__container_id__logs_get">
       <span class="method">GET</span><span class="path">/containers/{id}/logs?tail=100</span>
       <p>Fetch the last N log lines from any container, running or exited. Returns 404 for unknown ids.</p>
+    </a>
+    <a class="card" href="/system_health">
+      <span class="method">GET</span><span class="path">/system_health</span>
+      <p>Host machine health — CPU, memory and disk usage. Is Docker eating all your RAM?</p>
     </a>
   </div>
 
@@ -151,6 +156,17 @@ curl http://127.0.0.1:8000/containers
       document.getElementById("latency").textContent = Math.round(performance.now() - t0) + "ms";
     })
     .catch(() => { document.getElementById("count").textContent = "?"; });
+
+  fetch("/system_health")
+    .then(r => r.json())
+    .then(h => {
+      document.getElementById("cpu").textContent = h.cpu_percent.toFixed(0) + "%";
+      document.getElementById("mem").textContent = h.memory.percent.toFixed(0) + "%";
+    })
+    .catch(() => {
+      document.getElementById("cpu").textContent = "?";
+      document.getElementById("mem").textContent = "?";
+    });
 </script>
 </body>
 </html>

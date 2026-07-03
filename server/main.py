@@ -2,7 +2,7 @@ from fastmcp import FastMCP
 import docker
 import json
 
-from logic import _list_containers, _get_container_logs
+from logic import _list_containers, _get_container_logs, _system_health
     
 
 mcp = FastMCP("My MCP Server")
@@ -37,6 +37,16 @@ def get_container_logs(container_id: str, tail: int = 100) -> str:
     except docker.errors.NotFound:
         return json.dumps({"error": f"No container found matching '{container_id}'."}, indent=2)
     return json.dumps(logs, indent=2)
+
+
+@mcp.tool()
+def get_system_health() -> str:
+    """
+    Returns the current CPU, memory, and disk usage of the host machine.
+    Use this to monitor the health of the system running the Docker containers.
+    """
+    health = _system_health()
+    return json.dumps(health, indent=2)
 
 
 if __name__ == "__main__":
