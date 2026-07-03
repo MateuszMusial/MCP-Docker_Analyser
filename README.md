@@ -7,6 +7,7 @@
 One shared core, two interfaces: an [MCP](https://modelcontextprotocol.io) server that lets AI assistants
 (Claude Desktop, Claude Code, any MCP client) inspect your containers, and a FastAPI REST service for everyone else.
 
+[![CI](https://github.com/MateuszMusial/MCP-Docker_Analyser/actions/workflows/ci.yml/badge.svg)](https://github.com/MateuszMusial/MCP-Docker_Analyser/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![MCP](https://img.shields.io/badge/Protocol-MCP-blueviolet)](https://modelcontextprotocol.io)
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
