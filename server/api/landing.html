@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker Analyser — MCP + REST API</title>
+<style>
+  :root {
+    --bg: #0b1120;
+    --bg-card: #111a2e;
+    --border: #1e2a45;
+    --text: #e2e8f0;
+    --text-dim: #8fa3c0;
+    --accent: #38bdf8;
+    --accent-2: #818cf8;
+    --green: #34d399;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56,189,248,.14), transparent),
+      var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header { padding: 96px 0 48px; text-align: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 13px;
+    color: var(--accent); background: rgba(56,189,248,.08);
+    border: 1px solid rgba(56,189,248,.25);
+    padding: 5px 14px; border-radius: 999px; margin-bottom: 24px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: .4; } }
+  h1 {
+    font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight: 800; letter-spacing: -0.02em;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 16px;
+  }
+  .sub { color: var(--text-dim); font-size: 1.12rem; max-width: 560px; margin: 0 auto; }
+
+  .stats {
+    display: flex; justify-content: center; gap: 16px; margin: 40px 0 56px; flex-wrap: wrap;
+  }
+  .stat {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 28px; text-align: center; min-width: 160px;
+  }
+  .stat b { display: block; font-size: 1.7rem; font-weight: 700; color: var(--accent); font-family: var(--mono); }
+  .stat span { font-size: .8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; }
+
+  h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .1em;
+       color: var(--text-dim); margin: 48px 0 16px; }
+  .cards { display: grid; gap: 14px; }
+  .card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 22px; transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .method {
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--green);
+    background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3);
+    padding: 2px 9px; border-radius: 6px; margin-right: 10px; vertical-align: 2px;
+  }
+  .path { font-family: var(--mono); font-size: .95rem; color: var(--text); }
+  .card p { color: var(--text-dim); font-size: .9rem; margin-top: 8px; }
+
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .duo { grid-template-columns: 1fr; } }
+  .duo .card h3 { font-size: 1rem; margin-bottom: 6px; }
+  .duo .card h3 .ico { margin-right: 8px; }
+
+  pre {
+    background: #0d1526; border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; overflow-x: auto; font-family: var(--mono); font-size: .85rem;
+    color: var(--text-dim); margin-top: 14px;
+  }
+  pre .c { color: #566b8f; } pre .k { color: var(--accent); }
+
+  footer { margin-top: 72px; text-align: center; color: #566b8f; font-size: .85rem; }
+  footer a { color: var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge"><span class="dot"></span>API online</div>
+    <h1>Docker Analyser</h1>
+    <p class="sub">Docker introspection for humans <em>and</em> AI — one shared core exposed as an
+      MCP server for assistants and a REST API for you.</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b id="count">–</b><span>running containers</span></div>
+    <div class="stat"><b>2</b><span>interfaces (MCP + REST)</span></div>
+    <div class="stat"><b id="latency">–</b><span>api latency</span></div>
+  </div>
+
+  <h2>REST Endpoints</h2>
+  <div class="cards">
+    <a class="card" href="/containers">
+      <span class="method">GET</span><span class="path">/containers</span>
+      <p>List all running Docker containers — id, name, image and status as structured JSON.</p>
+    </a>
+    <a class="card" href="/docs#/default/get_container_logs_containers__container_id__logs_get">
+      <span class="method">GET</span><span class="path">/containers/{id}/logs?tail=100</span>
+      <p>Fetch the last N log lines from any container, running or exited. Returns 404 for unknown ids.</p>
+    </a>
+  </div>
+
+  <h2>Explore</h2>
+  <div class="duo">
+    <a class="card" href="/docs">
+      <h3><span class="ico">📘</span>Swagger UI</h3>
+      <p>Interactive OpenAPI docs — try every endpoint from the browser.</p>
+    </a>
+    <a class="card" href="/redoc">
+      <h3><span class="ico">📗</span>ReDoc</h3>
+      <p>Clean, reference-style API documentation.</p>
+    </a>
+  </div>
+
+  <h2>Quick start</h2>
+  <pre><span class="c"># REST</span>
+curl http://127.0.0.1:8000/containers
+
+<span class="c"># MCP (stdio) — for Claude Desktop / MCP clients</span>
+<span class="k">python</span> -m server.main</pre>
+
+  <footer>
+    Built with FastAPI · fastmcp · Docker SDK —
+    <a href="https://github.com/MateuszMusial/MCP-Docker_Analyser">GitHub</a>
+  </footer>
+</div>
+
+<script>
+  const t0 = performance.now();
+  fetch("/containers")
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById("count").textContent = Array.isArray(d) ? d.length : 0;
+      document.getElementById("latency").textContent = Math.round(performance.now() - t0) + "ms";
+    })
+    .catch(() => { document.getElementById("count").textContent = "?"; });
+</script>
+</body>
+</html>
